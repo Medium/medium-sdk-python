@@ -3,8 +3,7 @@
 This repository contains the open source SDK for integrating
 [Medium](https://medium.com/)'s OAuth2 REST API with your Python app.
 
-For full API documentation, see our [developer docs](https://github.com/Medium
-/medium-api-docs).
+For full API documentation, see our [developer docs](https://github.com/Medium/medium-api-docs).
 
 ## Usage
 
