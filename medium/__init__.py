@@ -18,7 +18,6 @@ class Client(object):
         self.application_secret = application_secret
         self.access_token = access_token
 
-
     def get_authorization_url(self, state, redirect_url, scopes):
         """Get a URL for users to authorize the application.
 
@@ -36,7 +35,6 @@ class Client(object):
         }
 
         return "https://medium.com/m/oauth/authorize?" + urlencode(qs)
-
 
     def exchange_authorization_code(self, code, redirect_url):
         """Exchange the authorization code for a long-lived access token, and
@@ -64,7 +62,6 @@ class Client(object):
         }
         return self._request_and_set_auth_code(data)
 
-
     def exchange_refresh_token(self, refresh_token):
         """Exchange the supplied refresh token for a new access token, and
         set the token on the current Client.
@@ -88,7 +85,6 @@ class Client(object):
         }
         return self._request_and_set_auth_code(data)
 
-
     def get_current_user(self):
         """Fetch the data for the currently authenticated user.
 
@@ -103,7 +99,6 @@ class Client(object):
             }
         """
         return self._request("GET", "/v1/me")
-
 
     def create_post(self, user_id, title, content, content_format, tags=None,
                     canonical_url=None, publish_status=None, license=None):
@@ -161,13 +156,11 @@ class Client(object):
         path = "/v1/users/%s/posts" % user_id
         return self._request("POST", path, json=data)
 
-
     def _request_and_set_auth_code(self, data):
         """Request an access token and set it on the current client."""
         result = self._request("POST", "/v1/tokens", form_data=data)
         self.access_token = result["access_token"]
         return result
-
 
     def _request(self, method, path, json=None, form_data=None, files=None):
         """Make a signed request to the given route."""
