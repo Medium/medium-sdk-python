@@ -1,4 +1,5 @@
 # Copyright 2015 A Medium Corporation
+from os.path import basename
 try:
     from urllib.parse import urlencode
 except ImportError:
@@ -18,7 +19,6 @@ class Client(object):
         self.application_secret = application_secret
         self.access_token = access_token
 
-
     def get_authorization_url(self, state, redirect_url, scopes):
         """Get a URL for users to authorize the application.
 
@@ -36,7 +36,6 @@ class Client(object):
         }
 
         return "https://medium.com/m/oauth/authorize?" + urlencode(qs)
-
 
     def exchange_authorization_code(self, code, redirect_url):
         """Exchange the authorization code for a long-lived access token, and
@@ -64,7 +63,6 @@ class Client(object):
         }
         return self._request_and_set_auth_code(data)
 
-
     def exchange_refresh_token(self, refresh_token):
         """Exchange the supplied refresh token for a new access token, and
         set the token on the current Client.
@@ -88,9 +86,10 @@ class Client(object):
         }
         return self._request_and_set_auth_code(data)
 
-
     def get_current_user(self):
         """Fetch the data for the currently authenticated user.
+
+        Requires the ``basicProfile`` scope.
 
         :returns: A dictionary with the users data ::
 
@@ -104,10 +103,11 @@ class Client(object):
         """
         return self._request("GET", "/v1/me")
 
-
     def create_post(self, user_id, title, content, content_format, tags=None,
                     canonical_url=None, publish_status=None, license=None):
         """Create a post for the current user.
+
+        Requires the ``publishPost`` scope.
 
         :param str user_id: The application-specific user ID as returned by
             ``get_current_user()``
@@ -161,13 +161,31 @@ class Client(object):
         path = "/v1/users/%s/posts" % user_id
         return self._request("POST", path, json=data)
 
+    def upload_image(self, file_path, content_type):
+        """Upload a local image to Medium for use in a post.
+
+        Requires the ``uploadImage`` scope.
+
+        :param str file_path: The file path of the image
+        :param str content_type: The type of the image. Valid values are
+            ``image/jpeg``, ``image/png``, ``image/gif``, and ``image/tiff``.
+        :returns: A dictionary with the image data ::
+
+            {
+                'url': 'https://cdn-images-1.medium.com/0*dlkfjalksdjfl.jpg',
+                'md5': 'd87e1628ca597d386e8b3e25de3a18b8'
+            }
+        """
+        with open(file_path, "rb") as f:
+            filename = basename(file_path)
+            files = {"image": (filename, f, content_type)}
+            return self._request("POST", "/v1/images", files=files)
 
     def _request_and_set_auth_code(self, data):
         """Request an access token and set it on the current client."""
         result = self._request("POST", "/v1/tokens", form_data=data)
         self.access_token = result["access_token"]
         return result
-
 
     def _request(self, method, path, json=None, form_data=None, files=None):
         """Make a signed request to the given route."""
@@ -177,10 +195,7 @@ class Client(object):
             "Accept-Charset": "utf-8",
             "Authorization": "Bearer %s" % self.access_token,
         }
-        if form_data is not None:
-            headers["Content-Type"] = "application/x-www-form-urlencoded"
-        else:
-            headers["Content-Type"] = "application/json"
+
         resp = requests.request(method, url, json=json, data=form_data,
                                 files=files, headers=headers)
         json = resp.json()
