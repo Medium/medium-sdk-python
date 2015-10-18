@@ -7,38 +7,48 @@ For full API documentation, see our [developer docs](https://github.com/Medium/m
 
 ## Usage
 
+
+
+To use the client, you first need to obtain an access token, which requires
+an authorization code from the user. Send them to the URL given by
+``Client.get_authorization_url()`` and then have them enter their
+authorization code to exchange it for an access token.
+
 ```python
 from medium import Client
 
 # Contact developers@medium.com to get your application_kd and application_secret.
-client = Client(application_id="MY_APPLICATION_ID", application_secret="MY_APPLICATION_SECRET")
+client = Client(application_id="MY_APPLICATION_ID",
+                application_secret="MY_APPLICATION_SECRET")
 
-# Build the URL where you can send the user to obtain an authorization code.
-auth_url = client.get_authorization_url("secretstate", "https://yoursite.com/callback/medium",
-                                        ["basicProfile", "publishPost"])
+# Obtain an access token, by sending the user to the authorization URL and
+# exchanging their authorization code for an access token.
 
-# (Send the user to the authorization URL to obtain an authorization code.)
+redirect_url = "https://yoursite.com/callback/medium"
+authorize_url = client.get_authorization_url(
+    state="secretstate",
+    redirect_url=redirect_url,
+    scopes=["basicProfile", "publishPost"]
+)
+print 'Go to: {}'.format(authorize_url)
+print 'Copy the authorization code.'
+authorization_code = raw_input('Enter the authorization code here: ')
+client.exchange_authorization_code(authorization_code, redirect_url)
 
-# Exchange the authorization code for an access token.
-auth = client.exchange_authorization_code("YOUR_AUTHORIZATION_CODE",
-                                          "https://yoursite.com/callback/medium")
+# Now that you have an access token, you can use the rest of the client's
+# methods. For example, to get the profile details of user identified by the
+# access token:
 
-# The access token is automatically set on the client for you after
-# a successful exchange, but if you already have a token, you can set it
-# directly.
-client.access_token = auth["access_token"]
+print client.get_current_user()
 
-# Get profile details of the user identified by the access token.
-user = client.get_current_user()
+# And to create a draft post:
 
-# Create a draft post.
-post = client.create_post(user_id=user["id"], title="Title", content="<h2>Title</h2><p>Content</p>",
-                          content_format="html", publish_status="draft")
-
-# When your access token expires, use the refresh token to get a new one.
-client.exchange_refresh_token(auth["refresh_token"])
-
-# Confirm everything went ok. post["url"] has the location of the created post.
+post = client.create_post(
+    user_id=user["id"],
+    title="Title",
+    content="<h2>Title</h2><p>Content</p>",
+    content_format="html", publish_status="draft"
+)
 print "My new post!", post["url"]
 ```
 
