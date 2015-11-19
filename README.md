@@ -10,7 +10,7 @@ For full API documentation, see our [developer docs](https://github.com/Medium/m
 ```python
 from medium import Client
 
-# Contact developers@medium.com to get your application_kd and application_secret.
+# Go to http://medium.com/me/applications to get your application_id and application_secret.
 client = Client(application_id="MY_APPLICATION_ID", application_secret="MY_APPLICATION_SECRET")
 
 # Build the URL where you can send the user to obtain an authorization code.
