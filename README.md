@@ -42,6 +42,22 @@ client.exchange_refresh_token(auth["refresh_token"])
 print "My new post!", post["url"]
 ```
 
+## Running tests
+
+To run tests against this package, first install the test requirements and make
+sure that the `medium` package is exportable. (We recommend using virtualenv.)
+
+```bash
+$ pip install -r tests/requirements.txt
+$ pip install -e .
+```
+
+Then run the primary test file:
+
+```bash
+$ python tests/test.py
+```
+
 ## Contributing
 
 Questions, comments, bug reports, and pull requests are all welcomed. If you
