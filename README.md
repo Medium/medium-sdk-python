@@ -5,6 +5,14 @@ This repository contains the open source SDK for integrating
 
 For full API documentation, see our [developer docs](https://github.com/Medium/medium-api-docs).
 
+## Installing dependencies
+
+To install dependencies using pip:
+
+```
+pip install -r requirements.txt
+```
+
 ## Usage
 
 ```python
