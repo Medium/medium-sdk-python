@@ -104,7 +104,7 @@ class Client(object):
         return self._request("GET", "/v1/me")
 
     def create_post(self, user_id, title, content, content_format, tags=None,
-                    canonical_url=None, publish_status=None, license=None):
+                    canonical_url=None, publish_status=None, license=None, published_at=None):
         """Create a post for the current user.
 
         Requires the ``publishPost`` scope.
@@ -141,6 +141,7 @@ class Client(object):
                 'tags': ['python', 'is', 'great'],
                 'authorId': '1f86...',
                 'publishStatus': 'draft',
+                'publishedAt': '1442286338435'
                 'id': '55050649c95'
             }
         """
@@ -155,6 +156,8 @@ class Client(object):
             data["canonicalUrl"] = canonical_url
         if publish_status is not None:
             data["publishStatus"] = publish_status
+        if published_at is not None:
+            data["publishedAt"] = published_at
         if license is not None:
             data["license"] = license
 
@@ -220,3 +223,4 @@ class MediumError(Exception):
         self.code = error.get("code", -1)
         self.msg = error.get("message", message)
         super(MediumError, self).__init__(self.msg)
+
