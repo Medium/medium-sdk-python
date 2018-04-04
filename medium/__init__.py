@@ -103,8 +103,55 @@ class Client(object):
         """
         return self._request("GET", "/v1/me")
 
+    def list_publications(self, user_id):
+
+        """List the user’s publications
+
+        Requires the ``listPublications`` scope.
+
+        :param str user_id: The application-specific user ID as returned by
+            ``get_current_user()``
+
+        :returns: A list with the user's publications
+
+            [
+                {
+                  "id": "b45573563f5a",
+                  "name": "Developers",
+                  "description": "Medium’s Developer resources",
+                  "url": "https://medium.com/developers",
+                  "imageUrl": "https://cdn-images-1.medium.com/fit/c/200/200/1*ccokMT4VXmDDO1EoQQHkzg@2x.png"
+                }
+            ]
+
+        """
+
+        return self._request("GET", "/v1/users/{}/publications".format(user_id))
+
+    def list_publication_contributors(self, publication_id):
+
+        """List contributors for a publication
+
+        Requires the ``listPublications`` scope.
+
+        :param str publication_id: The id of the publication
+
+        :returns: A list with the contributor data
+
+            [
+                {
+                  "publicationId": "b45573563f5a",
+                  "userId": "13a06af8f81849c64dafbce822cbafbfab7ed7cecf82135bca946807ea351290d",
+                  "role": "editor"
+                }
+            ]
+
+        """
+
+        return self._request("GET", "/v1/publications/{}/contributors".format(publication_id))
+
     def create_post(self, user_id, title, content, content_format, tags=None,
-                    canonical_url=None, publish_status=None, license=None):
+                    canonical_url=None, publish_status=None, license=None, publication_id=None):
         """Create a post for the current user.
 
         Requires the ``publishPost`` scope.
@@ -131,6 +178,7 @@ class Client(object):
             - ``cc-40-by-nc-sa``
             - ``cc-40-zero``
             - ``public-domain``
+        :param publication_id: (optional), The id of the publication the post is being created under.
         :returns: A dictionary with the post data ::
 
             {
@@ -141,7 +189,8 @@ class Client(object):
                 'tags': ['python', 'is', 'great'],
                 'authorId': '1f86...',
                 'publishStatus': 'draft',
-                'id': '55050649c95'
+                'id': '55050649c95',
+                'publicationId': '123456789'    (only if created under a publication)
             }
         """
         data = {
@@ -158,7 +207,11 @@ class Client(object):
         if license is not None:
             data["license"] = license
 
-        path = "/v1/users/%s/posts" % user_id
+        if publication_id:
+            path = "/v1/publications/%s/posts" % publication_id
+        else:
+            path = "/v1/users/%s/posts" % user_id
+
         return self._request("POST", path, json=data)
 
     def upload_image(self, file_path, content_type):
