@@ -1,3 +1,5 @@
+**Warning:** This code is no longer supported or maintained by Medium.
+
 # Medium SDK for Python
 
 This repository contains the open source SDK for integrating
