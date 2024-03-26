@@ -71,9 +71,13 @@ def rm_token() -> None:
 
 
 @app.command()
-def get_user() -> dict:
+def get_user(token: str = typer.Option(None, "--token", "-T",
+                                       help="Optionally pass the self-issued access token directly")) -> dict:
     """
     Retrieves the current user's information from the Medium API.
+
+    Parameters:
+        token (str, optional): Optionally pass the self-issued access token directly. Defaults to None.
 
     Raises:
         AssertionError: If the access token is not set.
@@ -82,7 +86,7 @@ def get_user() -> dict:
     Returns:
         dict: The user's information.
     """
-    client.access_token = keyring.get_password("medium_cli", "access_token")
+    client.access_token = keyring.get_password("medium_cli", "access_token") if not token else token
     assert client.access_token, "Access token not set. Please run `medium config set-token`"
 
     try:
@@ -95,12 +99,14 @@ def get_user() -> dict:
 
 
 @app.command()
-def upload_image(image: str) -> dict:
+def upload_image(image: str, token: str = typer.Option(None, "--token", "-T",
+                                                       help="Optionally pass the self-issued access token directly")) -> dict:
     """
     Uploads an image to the Medium API.
 
     Parameters:
         image (str): The path to the image to be uploaded.
+        token (str, optional): Optionally pass the self-issued access token directly. Defaults to None.
 
     Raises:
         AssertionError: If the access token is not set, the image does not exist, or the image format is not supported.
@@ -109,7 +115,7 @@ def upload_image(image: str) -> dict:
     Returns:
         dict: The response from the Medium API.
     """
-    client.access_token = keyring.get_password("medium_cli", "access_token")
+    client.access_token = keyring.get_password("medium_cli", "access_token") if not token else token
     assert client.access_token, "Access token not set. Please run `medium config set-token`"
 
     img_suffix = Path(image).suffix.lower()
@@ -144,7 +150,9 @@ def create_post(title: str = typer.Argument(..., help="Title of the post"),
                 license: str = typer.Option("all-rights-reserved", "--license", "-l",
                                             help="License to publish under. Options: all-rights-reserved (default), "
                                                  "cc-40-by, cc-40-by-sa, cc-40-by-nd, cc-40-by-nc, cc-40-by-nc-nd, "
-                                                 "cc-40-by-nc-sa, cc-40-zero, public-domain")) -> dict:
+                                                 "cc-40-by-nc-sa, cc-40-zero, public-domain"),
+                token: str = typer.Option(None, "--token", "-T", 
+                                          help="Optionally pass the self-issued access token directly")) -> dict:
     """
     Creates a post on Medium.
 
@@ -155,6 +163,7 @@ def create_post(title: str = typer.Argument(..., help="Title of the post"),
     The publish status of the post. Options: draft, public, unlisted. Defaults to "public". license (str, optional):
     The license to publish under. Options: all-rights-reserved (default), cc-40-by, cc-40-by-sa, cc-40-by-nd,
     cc-40-by-nc, cc-40-by-nc-nd, cc-40-by-nc-sa, cc-40-zero, public-domain. Defaults to "all-rights-reserved".
+    token (str, optional): Optionally pass the self-issued access token directly. Defaults to None.
 
     Raises: AssertionError: If the access token is not set, the content does not exist, or the content format is not
     supported. MediumError: If there is an error creating the post.
@@ -162,7 +171,7 @@ def create_post(title: str = typer.Argument(..., help="Title of the post"),
     Returns:
         dict: The response from the Medium API.
     """
-    client.access_token = keyring.get_password("medium_cli", "access_token")
+    client.access_token = keyring.get_password("medium_cli", "access_token") if not token else token
     assert client.access_token, "Access token not set. Please run `medium config set-token`"
 
     if Path(content).exists():
