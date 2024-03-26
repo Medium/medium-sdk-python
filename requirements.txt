@@ -1,1 +1,3 @@
 requests==2.20.0
+typer==0.10.0
+keyring~=25.0
